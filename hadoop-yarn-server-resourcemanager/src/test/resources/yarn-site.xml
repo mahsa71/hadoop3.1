@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<configuration>
+<property>
+  <name>yarn.resourcemanager.scheduler.class</name>
+  <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler</value>
+</property>
+
+<property>
+  <name>yarn.resource-types</name>
+  <value>memory, cpu</value>
+</property>
+<property>
+  <name>yarn.scheduler.fair.allocation.file</name>
+  <value>fair-scheduler.xml</value>
+</property>
+
+<property>
+    <name>yarn.scheduler.fair.allow-undeclared-pools</name>
+    <value>true</value>
+  </property>
+  
+  
+  <property>
+    <name>yarn.scheduler.fair.preemption</name>
+    <value>true</value>
+  </property>
+  
+  <property>
+    <name>yarn.scheduler.fair.preemption.cluster-utilization-threshold</name>
+    <value>0.8</value>
+  </property>
+  
+   <property>
+    <name>yarn.scheduler.fair.resource-calculator</name>
+    <value>org.apache.hadoop.yarn.util.resource.DominantResourceCalculator</value>
+    <description>
+      The ResourceCalculator implementation to be used to compare 
+      Resources in the scheduler.
+      The default i.e. DefaultResourceCalculator only uses Memory while
+      DominantResourceCalculator uses dominant-resource to compare 
+      multi-dimensional resources such as Memory, CPU etc.
+    </description>
+  </property>
+</configuration>
