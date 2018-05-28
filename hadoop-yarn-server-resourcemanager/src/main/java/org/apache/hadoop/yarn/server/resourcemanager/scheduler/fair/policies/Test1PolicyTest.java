@@ -25,7 +25,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 public class Test1PolicyTest {
-
+	
+	 int totalUsedMemory = 0 ;
+	 int totalUsedVcore = 0 ;
+	 int totalMemory = 8000 ;
+	 int totalVcore = 100 ;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -33,12 +37,12 @@ public class Test1PolicyTest {
 
 	private Comparator<Schedulable> createComparator(int clusterMem,
 		      int clusterCpu) {
-			
+			 
 			Policy1 policy = new Policy1() ;
 
 		    FSContext fsContext = mock(FSContext.class);
 		    when(fsContext.getClusterUsage()).
-	        thenReturn(Resources.createResource(0, 0));
+	        thenReturn(Resources.createResource(totalUsedMemory,totalUsedVcore));
 		    when(fsContext.getClusterResource()).
 		        thenReturn(Resources.createResource(clusterMem, clusterCpu));
 		    policy.initialize(fsContext);
@@ -71,17 +75,62 @@ public class Test1PolicyTest {
 		  
 	@Test
 	 public void testNoneNeedy() {
-	    Comparator<Schedulable> c = createComparator(8000, 8);
-	    Schedulable s1 = createSchedulable(6000, 3);
-	    Schedulable s2 = createSchedulable(2000, 5);
-
-	    assertTrue("Comparison didn't return a value more than 0",
-	        c.compare(s1, s2)> 0);
-	  }
+		
+		
+		
+		while((totalUsedMemory < totalMemory)&&
+				(totalUsedVcore) < totalVcore){
+			Comparator<Schedulable> c1 = createComparator(totalMemory, totalVcore);
+		    Schedulable s1 = createSchedulable(2000, 1);	    
+		    Schedulable s2 = createSchedulable(1000, 2);	   
+		    int res = c1.compare(s1, s2);
+		    if (res < 0){
+		    	updateClustrUsage(2000, 1);
+		    }else{
+		    	updateClustrUsage(1000, 2);
+		    }
+		    assertTrue("Comparison didn't return a value less than 0",
+			        res< 0);
+		}
+		System.out.println("************** cluster is full *******************");
+		/*
+		Comparator<Schedulable> c1 = createComparator(8000, 10);
+	    Schedulable s1 = createSchedulable(1000, 1);	    
+	    Schedulable s2 = createSchedulable(500, 2);	    
+	   
+	    int res = c1.compare(s1, s2);
+	    
+	    if (res < 0){
+	    	updateClustrUsage(1000, 1);
+	    }else{
+	    	updateClustrUsage(500, 2);
+	    }
+	    assertTrue("Comparison didn't return a value less than 0",
+		        res< 0);
+	//*************************************************************************
+	    Comparator<Schedulable> c2 = createComparator(8000, 10);
+	    Schedulable s3 = createSchedulable(3000, 3);		
+		Schedulable s4 = createSchedulable(2000, 4);
+		
+		res = c2.compare(s3, s4);
+	    
+	    if (res < 0){
+	    	updateClustrUsage(3000, 3);
+	    }else{
+	    	updateClustrUsage(2000, 4);
+	    }
+	    assertTrue("Comparison didn't return a value less than 0",
+		        res< 0);
+		        */
+	}
 	@Test
 	public void testNoneNeedy2() {
 	    ResourceUtils.resetResourceTypes(new Configuration());
 	    testNoneNeedy();
 	  }
+	public void updateClustrUsage(int mem , int cpu){
+		totalUsedMemory+= mem ;
+		totalUsedVcore+= cpu;
+	}
 
 }

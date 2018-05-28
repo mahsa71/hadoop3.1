@@ -170,7 +170,7 @@ public class Policy1 extends SchedulingPolicy {
 	    public int compare(Schedulable s1, Schedulable s2) {
 	 	   ResourceInformation[] usage1 =
 			          s1.getResourceUsage().getResources();
-		   ResourceInformation[] uage2 =
+		   ResourceInformation[] usage2 =
 			          s2.getResourceUsage().getResources();
 		   ResourceInformation[] request1 = s1.getDemand().getResources();
 		   ResourceInformation[] request2 = s2.getDemand().getResources();
@@ -198,20 +198,20 @@ public class Policy1 extends SchedulingPolicy {
 		   
 		   boolean s1Needy = usage1[dominant1].getValue() <
 			          minShareInfo1[dominant1].getValue();
-		   boolean s2Needy = uage2[dominant2].getValue() <
+		   boolean s2Needy = usage2[dominant2].getValue() <
 			          minShareInfo2[dominant2].getValue();
 		   
 		   
 		   // These arrays hold the fairness for needy time and not needy time
 		   // ratios[0][x] are if not needy, ourFairness[] = request/cluster*weight 
-		   // ratios[1][x] are needy, ourFairness[] = request/minshares*weight
+	
 		     
-	       double[][] ourFairness1 =new double [2][NUM_RESOURCES];
-	       double[][] ourFairness2 = new double [2][NUM_RESOURCES];
-	       ourFairness1[0] = calculateOurFairness(usage1, s1.getWeight(), clusterCapacity.getResources());
-	       ourFairness1[1] = calculateOurFairness(uage2, s2.getWeight(), minShareInfo1);
-	       ourFairness2[0] = calculateOurFairness(usage1, s1.getWeight(), clusterCapacity.getResources());
-	       ourFairness2[1] = calculateOurFairness(uage2, s2.getWeight(), minShareInfo2);
+	       double[] ourFairness1 =new double [NUM_RESOURCES];
+	       double[] ourFairness2 = new double[NUM_RESOURCES];
+	       ourFairness1 = calculateOurFairness(usage1, s1.getWeight(), clusterCapacity.getResources());
+	       
+	       ourFairness2 = calculateOurFairness(usage2, s2.getWeight(), clusterCapacity.getResources());
+	       
 	       
 	       
 	       int fitness1 = calculateFitness(
@@ -227,7 +227,7 @@ public class Policy1 extends SchedulingPolicy {
 	      if (!s2Needy && !s1Needy) {
 	    	  
 	    	  
-	         res = compareSA( ourFairness1[0][dominant1], ourFairness2[0][dominant2]) ; 
+	         res = compareSA( ourFairness1[dominant1], ourFairness2[dominant2]) ; 
 	         	if(res==0) {
 	         		res = compareAttribrutes(s1, s2);}  
 	            
