@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.sun.xml.internal.xsom.impl.scd.Iterators.Map;
 
 import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability.Unstable;
@@ -43,7 +46,7 @@ public class Policy1 extends SchedulingPolicy {
 			      new DominantResourceCalculator();
 		private static ArrayList<Schedulable>  schedulables = new ArrayList<Schedulable>() ;
 		private static ArrayList<Integer>  fitnessOfAll = new ArrayList<Integer>() ;
-		 private static double temperature = 0.001;
+		 private static double temperature = calculateTemperature();
 
 
 		
@@ -225,11 +228,24 @@ public class Policy1 extends SchedulingPolicy {
 
 
 	      if (!s2Needy && !s1Needy) {
+	    	  double minTemperature = 0 ;
+	    	  temperature = calculateTemperature();
 	    	  
-	    	  
-	         res = compareSA( ourFairness1[dominant1], ourFairness2[dominant2]) ; 
-	         	if(res==0) {
-	         		res = compareAttribrutes(s1, s2);}  
+	    	  if( temperature > minTemperature ) {
+	  	     	
+	    		  res = compareSA( ourFairness1[dominant1], ourFairness2[dominant2]) ; 
+		         	if(res==0) {
+		         		res = compareAttribrutes(s1, s2);
+		         	}
+	    	  }else{
+	    			res = (int) Math.signum(shares1[dominant1] - shares2[dominant2]);
+
+	    	        if (res == 0) {
+	    	          res = (int) Math.signum(shares1[1 - dominant1] -
+	    	        		  shares2[1 - dominant2]);
+	    	        }
+	    	  }
+	          
 	            
 	      } else if (s1Needy && !s2Needy) {
 	        res = -1;
@@ -358,21 +374,18 @@ public class Policy1 extends SchedulingPolicy {
 
 	      return fitness;
 	    }
-	    
-	    //**********************************************************************
-	    
+  //**********************************************************************
 	    int compareSA( double ourfairness1, double ourfairness2) {
 	 	   int ret = 0;
-	 	   double minTemperature = 0 ;
+	 	   
 	        double Alpha= 0.9 ;
 	        double rand= Math.random();
 	      
 	 	   
-	  {
+	
 	     	   
 	     	   ret = -1; //initial state is S2
-	     	   if( temperature > minTemperature ) {
-	     		   
+	     	 	   
 	     		   // simulated annealing starts
 	         	   
 	     	   if(ourfairness1 < ourfairness2){
@@ -393,10 +406,10 @@ public class Policy1 extends SchedulingPolicy {
 	            }else if (ourfairness1 == ourfairness2){
 	         	   ret = 0;
 	         	   }
-	            }
+	            
 	      
 
-	        }
+	      
 	 	   return ret ;
 	    }
 	  //***********************************************************************
@@ -447,7 +460,43 @@ public class Policy1 extends SchedulingPolicy {
 	 		
 	 	
 	 	}
-	
+	    //***********************************************************************************
+	      //calculate probability distribution functions of fitnessOfAll
+	      HashMap<Integer, Integer> calculatePdf(ArrayList<Integer> fitnessofall){
+	    	  
+	    	  HashMap<Integer, Integer> distribution = new HashMap<Integer,Integer>(); 
+	    	  for (int i = 0; i < fitnessofall.size(); i++)
+	    	  {
+	    		  int key = fitnessofall.get(i);
+	    		  if (distribution.containsKey(key))
+	    		  {
+	                int count = distribution.get(key);
+	                count++;
+	                distribution.put(key, count / fitnessofall.size());
+	    		  }else
+	            {
+	            	distribution.put(key, 1 / fitnessofall.size());
+	            }
+	    	  }
+		return distribution;
+	      }
+	    //***********************************************************************************
+	      double calculateTemperature(){
+	    	  double sum = 0;
+	    	  double constant = 1;
+	    	  
+	    	  HashMap<Integer, Integer> distribution = calculatePdf(fitnessOfAll);
+	    	  Iterator it = distribution.entrySet().iterator();
+	    	    while (it.hasNext()) {
+	    	    	HashMap.Entry pair = (HashMap.Entry)it.next();
+	    	    	double logOfPi= Math.log10((double) pair.getValue());
+	    	    	double Temperature = constant * logOfPi * ((double) pair.getValue());
+	    	    	sum += Temperature ;
+	    	    	
+	    	    }
+	    	  return sum;
+	      
+	      }
 	     //***********************************************************************************
 	  }
 	  
