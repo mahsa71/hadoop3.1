@@ -46,7 +46,12 @@ public class Policy1 extends SchedulingPolicy {
 			      new DominantResourceCalculator();
 		private static ArrayList<Schedulable>  schedulables = new ArrayList<Schedulable>() ;
 		private static ArrayList<Integer>  fitnessOfAll = new ArrayList<Integer>() ;
-		 private static double temperature = calculateTemperature();
+		private static double temperature = calculateTemperature();
+		static double minTemperature = 0 ;
+		static double maxTemperature = 0 ;
+		static double Alpha= 0.9 ;
+		static double constant = 1;
+		static boolean begining = true ;
 
 
 		
@@ -228,16 +233,21 @@ public class Policy1 extends SchedulingPolicy {
 
 
 	      if (!s2Needy && !s1Needy) {
-	    	  double minTemperature = 0 ;
-	    	  temperature = calculateTemperature();
-	    	  
-	    	  if( temperature > minTemperature ) {
+	    	       if (begining){
+	    	    	   temperature = calculateTemperature();
+	    	    	   begining = false;
+	    	       }
+	    	   
+	    		  
+	    		   
+	    	  if( temperature > minTemperature  ) {
 	  	     	
 	    		  res = compareSA( ourFairness1[dominant1], ourFairness2[dominant2]) ; 
 		         	if(res==0) {
 		         		res = compareAttribrutes(s1, s2);
 		         	}
 	    	  }else{
+	    		  temperature = calculateTemperature();
 	    			res = (int) Math.signum(shares1[dominant1] - shares2[dominant2]);
 
 	    	        if (res == 0) {
@@ -378,16 +388,11 @@ public class Policy1 extends SchedulingPolicy {
 	    int compareSA( double ourfairness1, double ourfairness2) {
 	 	   int ret = 0;
 	 	   
-	        double Alpha= 0.9 ;
+	      
 	        double rand= Math.random();
 	      
-	 	   
-	
-	     	   
 	     	   ret = -1; //initial state is S2
 	     	 	   
-	     		   // simulated annealing starts
-	         	   
 	     	   if(ourfairness1 < ourfairness2){
 	         	   ret = +1; // moves to next state
 	         	  
@@ -401,8 +406,6 @@ public class Policy1 extends SchedulingPolicy {
 	         				   -1 : +1;
 	         		   temperature*= Alpha ;
 	         	   
-	            
-	         		  
 	            }else if (ourfairness1 == ourfairness2){
 	         	   ret = 0;
 	         	   }
@@ -483,7 +486,6 @@ public class Policy1 extends SchedulingPolicy {
 	    //***********************************************************************************
 	      double calculateTemperature(){
 	    	  double sum = 0;
-	    	  double constant = 1;
 	    	  
 	    	  HashMap<Integer, Integer> distribution = calculatePdf(fitnessOfAll);
 	    	  Iterator it = distribution.entrySet().iterator();
