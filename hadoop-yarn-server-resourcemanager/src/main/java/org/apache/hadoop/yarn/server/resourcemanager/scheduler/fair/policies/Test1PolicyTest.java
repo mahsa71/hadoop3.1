@@ -26,10 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 public class Test1PolicyTest {
 	
-	 int totalUsedMemory = 0 ;
-	 int totalUsedVcore = 0 ;
-	 int totalMemory = 8000 ;
-	 int totalVcore = 100 ;
+	private static int totalUsedMemory = 0 ;
+	private static int totalUsedVcore = 0 ;
+	private static int totalMemory = 8000 ;
+	private static int totalVcore = 100 ;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -42,7 +42,7 @@ public class Test1PolicyTest {
 
 		    FSContext fsContext = mock(FSContext.class);
 		    when(fsContext.getClusterUsage()).
-	        thenReturn(Resources.createResource(totalUsedMemory,totalUsedVcore));
+	        thenReturn(Resources.createResource(totalUsedMemory, totalUsedVcore));
 		    when(fsContext.getClusterResource()).
 		        thenReturn(Resources.createResource(clusterMem, clusterCpu));
 		    policy.initialize(fsContext);
@@ -76,11 +76,11 @@ public class Test1PolicyTest {
 	@Test
 	 public void testNoneNeedy() {
 		
-		
+		Comparator<Schedulable> c1;
 		
 		while((totalUsedMemory < totalMemory)&&
 				(totalUsedVcore) < totalVcore){
-			Comparator<Schedulable> c1 = createComparator(totalMemory, totalVcore);
+			 c1 = createComparator(totalMemory, totalVcore);
 		    Schedulable s1 = createSchedulable(2000, 1);	    
 		    Schedulable s2 = createSchedulable(1000, 2);	   
 		    int res = c1.compare(s1, s2);
@@ -93,6 +93,7 @@ public class Test1PolicyTest {
 			        res< 0);
 		}
 		System.out.println("************** cluster is full *******************");
+		
 		/*
 		Comparator<Schedulable> c1 = createComparator(8000, 10);
 	    Schedulable s1 = createSchedulable(1000, 1);	    

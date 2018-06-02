@@ -6,6 +6,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Scanner;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.sun.xml.internal.xsom.impl.scd.Iterators.Map;
@@ -47,8 +56,8 @@ public class Policy1 extends SchedulingPolicy {
 		private static ArrayList<Schedulable>  schedulables = new ArrayList<Schedulable>() ;
 		private static ArrayList<Integer>  fitnessOfAll = new ArrayList<Integer>() ;
 		private static double temperature = calculateTemperature();
+		private static double[] variables = new double[3];
 		static double minTemperature = 0 ;
-		static double maxTemperature = 0 ;
 		static double Alpha= 0.9 ;
 		static double constant = 1;
 		static boolean begining = true ;
@@ -118,11 +127,17 @@ public class Policy1 extends SchedulingPolicy {
 		  }
 		
 	  static double calculateTemperature() {
-	 	     int max = Collections.max(fitnessOfAll);
+		  
+		   if (fitnessOfAll.size() > 0){
+	 	     int   max = Collections.max(fitnessOfAll);
 	 	     int min = Collections.min(fitnessOfAll);
 	 	     int entropy = max - min ;
 	 	     double temperature = entropy * 1000 ;
-	 	   return temperature;
+	 	     return temperature;
+	 	      }
+		   else{
+			   return 0 ;
+		   }
 	    }
 
 
@@ -171,11 +186,35 @@ public class Policy1 extends SchedulingPolicy {
 	  static class TestComparator2
 	      extends TestComparator {
 		  
-		//  temperature = calculateTemperature();
+
+	  
 
 	    @Override
 	    
 	    public int compare(Schedulable s1, Schedulable s2) {
+	    	
+	    	double[] variables = new double[3];
+			Scanner s;
+			int i =0 ;
+			try {
+				s = new Scanner(new BufferedReader(new FileReader("/home/hadoop/git/hadoop3.1/hadoop-yarn-server-resourcemanager/variables.txt")) );
+				s.useDelimiter("		"); // two tabs
+				while (s.hasNextDouble()){
+					
+					   variables[i++] = s.nextDouble();
+					}
+				  
+					
+				    s.close();
+			} catch (FileNotFoundException e) {
+				
+				e.printStackTrace();
+			} 
+		   
+		   minTemperature = variables[0] ;
+		   Alpha= variables[1] ;
+		   constant = variables[2];
+		   
 	 	   ResourceInformation[] usage1 =
 			          s1.getResourceUsage().getResources();
 		   ResourceInformation[] usage2 =
