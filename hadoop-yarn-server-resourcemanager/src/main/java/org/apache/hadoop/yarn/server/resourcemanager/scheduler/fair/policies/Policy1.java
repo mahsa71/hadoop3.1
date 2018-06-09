@@ -55,6 +55,7 @@ public class Policy1 extends SchedulingPolicy {
 			      new DominantResourceCalculator();
 		private static ArrayList<Schedulable>  schedulables = new ArrayList<Schedulable>() ;
 		private static ArrayList<Integer>  fitnessOfAll = new ArrayList<Integer>() ;
+		private static HashMap<Integer, Double> distribution = new HashMap<Integer,Double>(); 
 		private static double temperature = calculateTemperature();
 		private static double[] variables = new double[3];
 		static double minTemperature = 0 ;
@@ -275,26 +276,31 @@ public class Policy1 extends SchedulingPolicy {
 	    	       if (begining){
 	    	    	   temperature = calculateTemperature();
 	    	    	   begining = false;
+	    	    	   System.out.println("************** Temperature: " + temperature); 
 	    	       }
 	    	   
-	    		  
+	    	  
 	    		   
 	    	  if( temperature > minTemperature  ) {
 	  	     	
-	    		  res = compareSA( ourFairness1[dominant1], ourFairness2[dominant2]) ; 
+	    		  res = compareSA( ourFairness1[dominant1], ourFairness2[dominant2]) ;
+	    		  System.out.println("************** Temperature: " + temperature); 
 		         	if(res==0) {
 		         		res = compareAttribrutes(s1, s2);
+		         		
 		         	}
 	    	  }else{
 	    		  temperature = calculateTemperature();
+	    		  System.out.println("************** Temperature: " + temperature); 
 	    			res = (int) Math.signum(shares1[dominant1] - shares2[dominant2]);
 
 	    	        if (res == 0) {
 	    	          res = (int) Math.signum(shares1[1 - dominant1] -
 	    	        		  shares2[1 - dominant2]);
 	    	        }
+	    	        
 	    	  }
-	          
+	    	 
 	            
 	      } else if (s1Needy && !s2Needy) {
 	        res = -1;
@@ -430,7 +436,8 @@ public class Policy1 extends SchedulingPolicy {
 	      
 	        double rand= Math.random();
 	      
-	     	   ret = -1; //initial state is S2
+	     	   ret = -1; //
+           //initial state is S2
 	     	 	   
 	     	   if(ourfairness1 < ourfairness2){
 	         	   ret = +1; // moves to next state
@@ -504,34 +511,47 @@ public class Policy1 extends SchedulingPolicy {
 	 	}
 	    //***********************************************************************************
 	      //calculate probability distribution functions of fitnessOfAll
-	      HashMap<Integer, Integer> calculatePdf(ArrayList<Integer> fitnessofall){
-	    	  
-	    	  HashMap<Integer, Integer> distribution = new HashMap<Integer,Integer>(); 
+	      HashMap<Integer, Double> calculatePdf(ArrayList<Integer> fitnessofall){
+	    	  double totalNumOfFitnesses = 0;
 	    	  for (int i = 0; i < fitnessofall.size(); i++)
 	    	  {
 	    		  int key = fitnessofall.get(i);
 	    		  if (distribution.containsKey(key))
 	    		  {
-	                int count = distribution.get(key);
+	                double count = distribution.get(key);
 	                count++;
-	                distribution.put(key, count / fitnessofall.size());
+	                distribution.put(key, count );
 	    		  }else
 	            {
-	            	distribution.put(key, 1 / fitnessofall.size());
+	            	distribution.put(key, (double) 1 );
 	            }
+	    		  
 	    	  }
-		return distribution;
+	    	    
+	    	  Iterator it = distribution.entrySet().iterator();
+	    	    while (it.hasNext()) {
+	    	    	HashMap.Entry pair = (HashMap.Entry)it.next();
+	    	    	totalNumOfFitnesses += (double)pair.getValue();
+	    	    }
+	    	    it = distribution.entrySet().iterator();
+	    	    HashMap<Integer, Double> finalDistribution =new HashMap<Integer, Double>();
+	    	    while (it.hasNext()) {
+	    	    	HashMap.Entry pair = (HashMap.Entry)it.next();
+	    	    	finalDistribution.put((Integer) pair.getKey(), (double)pair.getValue() / totalNumOfFitnesses );
+	    	    }
+	    	    
+		return finalDistribution;
 	      }
 	    //***********************************************************************************
 	      double calculateTemperature(){
 	    	  double sum = 0;
 	    	  
-	    	  HashMap<Integer, Integer> distribution = calculatePdf(fitnessOfAll);
+	    	  HashMap<Integer, Double> distribution = calculatePdf(fitnessOfAll);
 	    	  Iterator it = distribution.entrySet().iterator();
 	    	    while (it.hasNext()) {
 	    	    	HashMap.Entry pair = (HashMap.Entry)it.next();
 	    	    	double logOfPi= Math.log10((double) pair.getValue());
-	    	    	double Temperature = constant * logOfPi * ((double) pair.getValue());
+	    	    	double Temperature =  -1 *constant * logOfPi * ((double) pair.getValue());
 	    	    	sum += Temperature ;
 	    	    	
 	    	    }

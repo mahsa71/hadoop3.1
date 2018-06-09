@@ -72,57 +72,51 @@ public class Test1PolicyTest {
 		        Resources.createResource(Integer.MAX_VALUE, Integer.MAX_VALUE),
 		        weights, Resources.none(), usage, 0l);
 		  }
-		  
+		  @Test
+			 public void test0neNeedy() {
+					Comparator<Schedulable>  c1 = createComparator(totalMemory, totalVcore);
+				    Schedulable s1 = createSchedulable(200, 1,300, 2);	    
+				    Schedulable s2 = createSchedulable(100, 2);	   
+				    int res = c1.compare(s1, s2);
+				    if (res < 0){
+				    	updateClustrUsage(200, 1);
+				    }else{
+				    	updateClustrUsage(100, 2);
+				    }
+				  /*  
+				    Comparator<Schedulable>  c2 = createComparator(totalMemory, totalVcore);
+				    Schedulable s3 = createSchedulable(200, 1,300, 2);	    
+				    Schedulable s4 = createSchedulable(100, 2);	   
+				     res = c2.compare(s3, s4);
+				    if (res < 0){
+				    	updateClustrUsage(200, 1);
+				    }else{
+				    	updateClustrUsage(100, 2);
+				    }*/
+				System.out.println("************** finished S1 is needy *******************");
+				
+				
+			}  
 	@Test
 	 public void testNoneNeedy() {
-		
+	//	test0neNeedy();
 		Comparator<Schedulable> c1;
-		
 		while((totalUsedMemory < totalMemory)&&
 				(totalUsedVcore) < totalVcore){
 			 c1 = createComparator(totalMemory, totalVcore);
-		    Schedulable s1 = createSchedulable(2000, 1);	    
-		    Schedulable s2 = createSchedulable(1000, 2);	   
+		    Schedulable s1 = createSchedulable(200, 1);	    
+		    Schedulable s2 = createSchedulable(100, 2);	   
 		    int res = c1.compare(s1, s2);
 		    if (res < 0){
-		    	updateClustrUsage(2000, 1);
+		    	updateClustrUsage(200, 1);
 		    }else{
-		    	updateClustrUsage(1000, 2);
+		    	updateClustrUsage(100, 2);
 		    }
-		    assertTrue("Comparison didn't return a value less than 0",
-			        res< 0);
+		    
 		}
 		System.out.println("************** cluster is full *******************");
 		
-		/*
-		Comparator<Schedulable> c1 = createComparator(8000, 10);
-	    Schedulable s1 = createSchedulable(1000, 1);	    
-	    Schedulable s2 = createSchedulable(500, 2);	    
-	   
-	    int res = c1.compare(s1, s2);
-	    
-	    if (res < 0){
-	    	updateClustrUsage(1000, 1);
-	    }else{
-	    	updateClustrUsage(500, 2);
-	    }
-	    assertTrue("Comparison didn't return a value less than 0",
-		        res< 0);
-	//*************************************************************************
-	    Comparator<Schedulable> c2 = createComparator(8000, 10);
-	    Schedulable s3 = createSchedulable(3000, 3);		
-		Schedulable s4 = createSchedulable(2000, 4);
 		
-		res = c2.compare(s3, s4);
-	    
-	    if (res < 0){
-	    	updateClustrUsage(3000, 3);
-	    }else{
-	    	updateClustrUsage(2000, 4);
-	    }
-	    assertTrue("Comparison didn't return a value less than 0",
-		        res< 0);
-		        */
 	}
 	@Test
 	public void testNoneNeedy2() {
