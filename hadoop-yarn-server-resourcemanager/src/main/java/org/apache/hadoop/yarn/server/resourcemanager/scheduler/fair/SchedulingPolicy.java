@@ -25,6 +25,7 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.DominantResourceFairnessPolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.FairSharePolicy;
 import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.FifoPolicy;
+import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.policies.Policy1;
 
 
 import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
@@ -53,9 +54,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class SchedulingPolicy {
   private static final ConcurrentHashMap<Class<? extends SchedulingPolicy>, SchedulingPolicy> instances =
       new ConcurrentHashMap<Class<? extends SchedulingPolicy>, SchedulingPolicy>();
-
+//i changed
   public static final SchedulingPolicy DEFAULT_POLICY =
-      getInstance(FairSharePolicy.class);
+      getInstance(Policy1.class);
 
   /**
    * Returns a {@link SchedulingPolicy} instance corresponding
@@ -99,7 +100,9 @@ public abstract class SchedulingPolicy {
       clazz = FifoPolicy.class;
     } else if (text.equalsIgnoreCase(DominantResourceFairnessPolicy.NAME)) {
       clazz = DominantResourceFairnessPolicy.class;
-    } else {
+    }else if (text.equalsIgnoreCase(Policy1.NAME)) {
+        clazz = Policy1.class;
+      } else {
       try {
         clazz = Class.forName(policy);
       } catch (ClassNotFoundException cnfe) {

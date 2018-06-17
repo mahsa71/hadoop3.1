@@ -198,7 +198,7 @@ public class Policy1 extends SchedulingPolicy {
 			Scanner s;
 			int i =0 ;
 			try {
-				s = new Scanner(new BufferedReader(new FileReader("/home/hadoop/git/hadoop3.1/hadoop-yarn-server-resourcemanager/variables.txt")) );
+				s = new Scanner(new BufferedReader(new FileReader("/opt/hadoop/etc/hadoop/variables.txt")) );
 				s.useDelimiter("		"); // two tabs
 				while (s.hasNextDouble()){
 					
